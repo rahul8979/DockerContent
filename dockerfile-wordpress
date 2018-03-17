@@ -1,23 +1,5 @@
-server {
-        
-	listen 80; 
-	root /var/www/html/wordpress/;
-
-	index index.html index.htm index.nginx-debian.html index.php;
-
-	server_name _;
-
-	location / {
-		try_files $uri $uri/ /index.php?q=$uri&$args;
-	}
-
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-	
-                fastcgi_split_path_info ^(.+\.php)(/.+)$;
-		fastcgi_pass 127.0.0.1:9000;
-                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                include fastcgi_params;
-	}
-
-}
+FROM rahul:ques1
+WORKDIR /root
+COPY wordpress.conf /etc/nginx/sites-enabled/default
+RUN rm /var/www/html/index.php && apt-get install -y wget && wget http://wordpress.org/latest.tar.gz && tar xzvf latest.tar.gz && cd wordpress/ && cp wp-config-sample.php wp-config.php && apt-get install -y curl && curl -s https://api.wordpress.org/secret-key/1.1/salt/ >>wp-config.php && cp ../wordpress/ -ru /var/www/html/ && chown -R www-data:www-data /var/www/html/wordpress && apt-get install -y php7.0-mysql && sed -i 's@listen = /run/php/php7.0-fpm.sock@listen = 9000@' /etc/php/7.0/fpm/pool.d/www.conf && sed -i "s@define('DB_NAME', 'database_name_here');@define('DB_NAME', 'wordpress');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_USER', 'username_here');@define('DB_USER', 'wordpressuser');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_PASSWORD', 'password_here');@define('DB_PASSWORD', 'password');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_HOST', 'localhost');@define('DB_HOST', '172.17.0.2');@" /var/www/html/wordpress/wp-config.php
+CMD service nginx start && service php7.0-fpm start && /bin/bash
