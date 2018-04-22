@@ -1,4 +1,4 @@
-FROM rahul:ques1
+FROM project:nginx
 WORKDIR /root
 COPY wordpress.conf /etc/nginx/sites-enabled/default
 RUN rm /var/www/html/index.php && apt-get install -y wget && wget http://wordpress.org/latest.tar.gz && tar xzvf latest.tar.gz && cd wordpress/ && cp wp-config-sample.php wp-config.php && apt-get install -y curl && curl -s https://api.wordpress.org/secret-key/1.1/salt/ >>wp-config.php && cp ../wordpress/ -ru /var/www/html/ && chown -R www-data:www-data /var/www/html/wordpress && apt-get install -y php7.0-mysql && sed -i "s@define('DB_NAME', 'database_name_here');@define('DB_NAME', 'wordpress');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_USER', 'username_here');@define('DB_USER', 'wordpressuser');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_PASSWORD', 'password_here');@define('DB_PASSWORD', 'password');@" /var/www/html/wordpress/wp-config.php && sed -i "s@define('DB_HOST', 'localhost');@define('DB_HOST', '34.227.57.250:8080');@" /var/www/html/wordpress/wp-config.php
